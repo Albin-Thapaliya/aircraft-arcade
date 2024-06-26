@@ -749,9 +749,11 @@ MonoBehaviour:
   fuel: 100
   fuelConsumptionRate: 0.1
   maxHealth: 100
+  healthRegenRate: 0.05
   projectilePrefab: {fileID: 1527546783066621173, guid: dcd94adbf12f1cf4c9e5bab790d1a249, type: 3}
   laserParticlePrefab: {fileID: 744956347}
   fireRate: 1
+  useSmartTargeting: 1
 --- !u!1001 &744956345
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -924,6 +926,55 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 748557972}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &760785137
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 760785139}
+  - component: {fileID: 760785138}
+  m_Layer: 0
+  m_Name: s (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &760785138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 760785137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dbc45073ad74304fa69c0a445189e44, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  aiPlanePrefab: {fileID: 6466631955853455543, guid: 77ec416fecfc7044883f959640285484, type: 3}
+  spawnPoints:
+  - {fileID: 760785139}
+  numberOfPlanes: 5
+  spawnInterval: 5
+--- !u!4 &760785139
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 760785137}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 137.23, y: 256.73593, z: 142.94058}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &938911111
 GameObject:
   m_ObjectHideFlags: 0
@@ -1277,6 +1328,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1271477932}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1393234683
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1393234684}
+  m_Layer: 0
+  m_Name: s
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1393234684
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1393234683}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 153.4521, y: 256.73593, z: 142.94058}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1402271621
 GameObject:
   m_ObjectHideFlags: 0
@@ -1472,9 +1554,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d9898a8b2638a14f98bebbda508c37e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPlanePrefab: {fileID: 0}
-  playerSpawnPoint: {fileID: 0}
-  aiPlaneSpawner: {fileID: 0}
+  playerPlanePrefab: {fileID: 655246408}
+  playerSpawnPoint: {fileID: 1393234684}
+  aiPlaneSpawner: {fileID: 760785138}
   powerUpPrefabs: []
   powerUpSpawnPoints: []
   powerUpSpawnInterval: 30
@@ -2222,3 +2304,5 @@ SceneRoots:
   - {fileID: 6008301759835333459}
   - {fileID: 1068896088}
   - {fileID: 1896140114}
+  - {fileID: 1393234684}
+  - {fileID: 760785139}

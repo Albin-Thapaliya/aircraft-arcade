@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         SpawnPlayer();
-        StartCoroutine(aiPlaneSpawner.SpawnAIPlanes());
+        // StartCoroutine(aiPlaneSpawner.SpawnAIPlanes());
         InvokeRepeating("SpawnPowerUp", powerUpSpawnInterval, powerUpSpawnInterval);
     }
 

@@ -123,7 +123,7 @@ public class Plane : MonoBehaviour
 
     private void HandleAIControl()
     {
-        Vector3 targetPosition = FindTargetPosition(); // Assume this method exists and provides smart targeting
+        Vector3 targetPosition = new Vector3(0, 0, 0);
         RunAutopilot(targetPosition, out autoYaw, out autoPitch, out autoRoll);
 
         pitch = autoPitch;
