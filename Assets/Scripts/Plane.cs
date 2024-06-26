@@ -17,9 +17,9 @@ public class Plane : MonoBehaviour
     [Tooltip("Angle at which airplane banks fully into target.")] public float aggressiveTurnAngle = 10f;
 
     [Header("Input")]
-    [SerializeField][Range(-1f, 1f)] private float pitch = 0f;
-    [SerializeField][Range(-1f, 1f)] private float yaw = 0f;
-    [SerializeField][Range(-1f, 1f)] private float roll = 0f;
+    [SerializeField] [Range(-1f, 1f)] private float pitch = 0f;
+    [SerializeField] [Range(-1f, 1f)] private float yaw = 0f;
+    [SerializeField] [Range(-1f, 1f)] private float roll = 0f;
 
     [Header("Fuel System")]
     [Tooltip("Initial fuel amount in percentage")] public float fuel = 100f;
@@ -28,6 +28,7 @@ public class Plane : MonoBehaviour
     [Header("Health System")]
     [Tooltip("Maximum health of the plane")] public float maxHealth = 100f;
     private float currentHealth;
+
     [Header("Weapons")]
     [Tooltip("Projectile prefab to shoot")] public GameObject projectilePrefab;
     [Tooltip("Particle system prefab for laser effect")] public GameObject laserParticlePrefab;
@@ -41,17 +42,24 @@ public class Plane : MonoBehaviour
     private float autoPitch;
     private float autoRoll;
 
+    private bool isInvincible = false;
+    private float originalSpeed;
+    private float powerUpEndTime;
+    private float turnSpeed;
+
 
     public float Pitch
     {
         get { return pitch; }
         set { pitch = Mathf.Clamp(value, -1f, 1f); }
     }
+
     public float Yaw
     {
         get { return yaw; }
         set { yaw = Mathf.Clamp(value, -1f, 1f); }
     }
+
     public float Roll
     {
         get { return roll; }
@@ -61,6 +69,7 @@ public class Plane : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        originalSpeed = thrust;
 
         if (!isAI && controller == null)
             Debug.LogError($"{name}: Plane - Missing reference to FlightController!");
@@ -87,7 +96,7 @@ public class Plane : MonoBehaviour
             }
 
             if (controller != null)
-                RunAutopilot(controller.MouseAimPos, out float autoYaw, out float autoPitch, out float autoRoll);
+                RunAutopilot(controller.MouseAimPos, out autoYaw, out autoPitch, out autoRoll);
 
             yaw = autoYaw;
             pitch = pitchOverride ? keyboardPitch : autoPitch;
@@ -96,6 +105,50 @@ public class Plane : MonoBehaviour
 
         ConsumeFuel();
         HandleShooting();
+        CheckPowerUpStatus();
+    }
+
+    private void CheckPowerUpStatus()
+    {
+        if (Time.time > powerUpEndTime)
+        {
+            DeactivatePowerUp();
+        }
+    }
+
+    public void ActivatePowerUp(PowerUp.PowerUpType powerUpType, float duration)
+    {
+        powerUpEndTime = Time.time + duration;
+
+        switch (powerUpType)
+        {
+            case PowerUp.PowerUpType.SpeedBoost:
+                thrust *= 2;
+                break;
+            case PowerUp.PowerUpType.Invincibility:
+                isInvincible = true;
+                break;
+            case PowerUp.PowerUpType.HealthRestore:
+                currentHealth = Mathf.Min(currentHealth + 50f, maxHealth);
+                break;
+        }
+    }
+
+    private void DeactivatePowerUp()
+    {
+        thrust = originalSpeed;
+        isInvincible = false;
+    }
+
+    public void TakeDamage(float amount)
+    {
+        if (isInvincible) return;
+
+        currentHealth -= amount;
+        if (currentHealth <= 0)
+        {
+            DestroyPlane();
+        }
     }
 
     private void ConsumeFuel()
@@ -142,12 +195,14 @@ public class Plane : MonoBehaviour
         }
     }
 
-    public void TakeDamage(float amount)
+    public void HandleShooting(Vector3 targetDirection)
     {
-        currentHealth -= amount;
-        if (currentHealth <= 0)
+        if (Time.time >= nextFireTime)
         {
-            DestroyPlane();
+            Quaternion lookRotation = Quaternion.LookRotation(targetDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, turnSpeed * Time.deltaTime);
+            Shoot();
+            nextFireTime = Time.time + 1f / fireRate;
         }
     }
 
