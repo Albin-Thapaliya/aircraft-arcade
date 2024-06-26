@@ -29,6 +29,12 @@ public class Plane : MonoBehaviour
     [Tooltip("Particle system prefab for laser effect")] public GameObject laserParticlePrefab;
     [Tooltip("Fire rate in shots per second")] public float fireRate = 1f;
 
+    [Header("Damage System")]
+    [Tooltip("Maximum health of the plane")] public float maxHealth = 100f;
+    private float currentHealth;
+    [Tooltip("Smoke effect when damaged")] public GameObject smokeEffect;
+    private GameObject smokeInstance;
+
     private Rigidbody rb;
     private bool rollOverride = false;
     private bool pitchOverride = false;
@@ -57,6 +63,7 @@ public class Plane : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        currentHealth = maxHealth;
 
         if (controller == null)
             Debug.LogError($"{name}: Plane - Missing reference to FlightController!");
@@ -147,5 +154,37 @@ public class Plane : MonoBehaviour
     {
         rb.AddRelativeForce(Vector3.forward * thrust * forceMult, ForceMode.Force);
         rb.AddRelativeTorque(new Vector3(turnTorque.x * pitch, turnTorque.y * yaw, -turnTorque.z * roll) * forceMult, ForceMode.Force);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        TakeDamage(10f);
+    }
+
+    public void TakeDamage(float amount)
+    {
+        currentHealth -= amount;
+        if (currentHealth <= 0)
+        {
+            Debug.Log("Plane destroyed!");
+        }
+        else
+        {
+            if (smokeEffect != null && smokeInstance == null)
+            {
+                smokeInstance = Instantiate(smokeEffect, transform.position, Quaternion.identity);
+                smokeInstance.transform.SetParent(transform);
+            }
+        }
+    }
+
+    public void Repair(float amount)
+    {
+        currentHealth += amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
+        if (currentHealth == maxHealth && smokeInstance != null)
+        {
+            Destroy(smokeInstance);
+        }
     }
 }

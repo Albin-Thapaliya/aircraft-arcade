@@ -151,4 +151,13 @@ public class FlightController : MonoBehaviour
         }
         return 0f;
     }
+
+    public float GetHealth()
+    {
+        if (plane != null)
+        {
+            return plane.GetHealth();
+        }
+        return 0f;
+    }
 }
