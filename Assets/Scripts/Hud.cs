@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class Hud : MonoBehaviour
@@ -13,7 +12,7 @@ public class Hud : MonoBehaviour
     [SerializeField] private TextMeshProUGUI speedText = null;
     [SerializeField] private TextMeshProUGUI altitudeText = null;
     [SerializeField] private TextMeshProUGUI fuelText = null;
-    [SerializeField] private TextMeshProUGUI healthText = null;
+
     private void Update()
     {
         if (flightController == null)
@@ -56,12 +55,6 @@ public class Hud : MonoBehaviour
         {
             float fuel = flightController.GetFuel();
             fuelText.text = $"Fuel: {fuel:F2}%";
-        }
-
-        if (healthText != null)
-        {
-            float health = flightController.GetHealth();
-            healthText.text = $"Health: {health:F2}%";
         }
     }
 

@@ -5,6 +5,7 @@ public class Plane : MonoBehaviour
 {
     [Header("Components")]
     [SerializeField] private FlightController controller = null;
+    [SerializeField] private bool isAI = false;
 
     [Header("Physics")]
     [Tooltip("Force to push plane forwards with")] public float thrust = 100f;
@@ -28,12 +29,6 @@ public class Plane : MonoBehaviour
     [Tooltip("Projectile prefab to shoot")] public GameObject projectilePrefab;
     [Tooltip("Particle system prefab for laser effect")] public GameObject laserParticlePrefab;
     [Tooltip("Fire rate in shots per second")] public float fireRate = 1f;
-
-    [Header("Damage System")]
-    [Tooltip("Maximum health of the plane")] public float maxHealth = 100f;
-    private float currentHealth;
-    [Tooltip("Smoke effect when damaged")] public GameObject smokeEffect;
-    private GameObject smokeInstance;
 
     private Rigidbody rb;
     private bool rollOverride = false;
@@ -63,34 +58,36 @@ public class Plane : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        currentHealth = maxHealth;
 
-        if (controller == null)
+        if (!isAI && controller == null)
             Debug.LogError($"{name}: Plane - Missing reference to FlightController!");
     }
 
     private void Update()
     {
-        rollOverride = false;
-        pitchOverride = false;
-
-        float keyboardRoll = Input.GetAxis("Horizontal");
-        if (Mathf.Abs(keyboardRoll) > 0.25f)
-            rollOverride = true;
-
-        float keyboardPitch = Input.GetAxis("Vertical");
-        if (Mathf.Abs(keyboardPitch) > 0.25f)
+        if (!isAI)
         {
-            pitchOverride = true;
-            rollOverride = true;
+            rollOverride = false;
+            pitchOverride = false;
+
+            float keyboardRoll = Input.GetAxis("Horizontal");
+            if (Mathf.Abs(keyboardRoll) > 0.25f)
+                rollOverride = true;
+
+            float keyboardPitch = Input.GetAxis("Vertical");
+            if (Mathf.Abs(keyboardPitch) > 0.25f)
+            {
+                pitchOverride = true;
+                rollOverride = true;
+            }
+
+            if (controller != null)
+                RunAutopilot(controller.MouseAimPos, out float autoYaw, out float autoPitch, out float autoRoll);
+
+            yaw = autoYaw;
+            pitch = pitchOverride ? keyboardPitch : autoPitch;
+            roll = rollOverride ? keyboardRoll : autoRoll;
         }
-
-        if (controller != null)
-            RunAutopilot(controller.MouseAimPos, out float autoYaw, out float autoPitch, out float autoRoll);
-
-        yaw = autoYaw;
-        pitch = pitchOverride ? keyboardPitch : autoPitch;
-        roll = rollOverride ? keyboardRoll : autoRoll;
 
         ConsumeFuel();
         HandleShooting();
@@ -154,37 +151,5 @@ public class Plane : MonoBehaviour
     {
         rb.AddRelativeForce(Vector3.forward * thrust * forceMult, ForceMode.Force);
         rb.AddRelativeTorque(new Vector3(turnTorque.x * pitch, turnTorque.y * yaw, -turnTorque.z * roll) * forceMult, ForceMode.Force);
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        TakeDamage(10f);
-    }
-
-    public void TakeDamage(float amount)
-    {
-        currentHealth -= amount;
-        if (currentHealth <= 0)
-        {
-            Debug.Log("Plane destroyed!");
-        }
-        else
-        {
-            if (smokeEffect != null && smokeInstance == null)
-            {
-                smokeInstance = Instantiate(smokeEffect, transform.position, Quaternion.identity);
-                smokeInstance.transform.SetParent(transform);
-            }
-        }
-    }
-
-    public void Repair(float amount)
-    {
-        currentHealth += amount;
-        currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
-        if (currentHealth == maxHealth && smokeInstance != null)
-        {
-            Destroy(smokeInstance);
-        }
     }
 }
