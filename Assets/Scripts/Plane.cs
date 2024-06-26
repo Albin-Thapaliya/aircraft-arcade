@@ -1,4 +1,7 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Plane : MonoBehaviour
@@ -27,12 +30,14 @@ public class Plane : MonoBehaviour
 
     [Header("Health System")]
     [Tooltip("Maximum health of the plane")] public float maxHealth = 100f;
+    [Tooltip("Health regeneration rate per second when below 50% health")] public float healthRegenRate = 0.05f;
     private float currentHealth;
 
     [Header("Weapons")]
     [Tooltip("Projectile prefab to shoot")] public GameObject projectilePrefab;
     [Tooltip("Particle system prefab for laser effect")] public GameObject laserParticlePrefab;
     [Tooltip("Fire rate in shots per second")] public float fireRate = 1f;
+    [Tooltip("Smart targeting system for AI")] public bool useSmartTargeting = true;
 
     private Rigidbody rb;
     private bool rollOverride = false;
@@ -46,7 +51,6 @@ public class Plane : MonoBehaviour
     private float originalSpeed;
     private float powerUpEndTime;
     private float turnSpeed;
-
 
     public float Pitch
     {
@@ -70,42 +74,83 @@ public class Plane : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         originalSpeed = thrust;
+        currentHealth = maxHealth;
 
         if (!isAI && controller == null)
             Debug.LogError($"{name}: Plane - Missing reference to FlightController!");
-
-        currentHealth = maxHealth;
     }
 
     private void Update()
     {
         if (!isAI)
         {
-            rollOverride = false;
-            pitchOverride = false;
-
-            float keyboardRoll = Input.GetAxis("Horizontal");
-            if (Mathf.Abs(keyboardRoll) > 0.25f)
-                rollOverride = true;
-
-            float keyboardPitch = Input.GetAxis("Vertical");
-            if (Mathf.Abs(keyboardPitch) > 0.25f)
-            {
-                pitchOverride = true;
-                rollOverride = true;
-            }
-
-            if (controller != null)
-                RunAutopilot(controller.MouseAimPos, out autoYaw, out autoPitch, out autoRoll);
-
-            yaw = autoYaw;
-            pitch = pitchOverride ? keyboardPitch : autoPitch;
-            roll = rollOverride ? keyboardRoll : autoRoll;
+            HandleManualControl();
+        }
+        else
+        {
+            HandleAIControl();
         }
 
         ConsumeFuel();
         HandleShooting();
         CheckPowerUpStatus();
+        RegenerateHealth();
+    }
+
+    private void HandleManualControl()
+    {
+        rollOverride = false;
+        pitchOverride = false;
+
+        float keyboardRoll = Input.GetAxis("Horizontal");
+        if (Mathf.Abs(keyboardRoll) > 0.25f)
+            rollOverride = true;
+
+        float keyboardPitch = Input.GetAxis("Vertical");
+        if (Mathf.Abs(keyboardPitch) > 0.25f)
+        {
+            pitchOverride = true;
+            rollOverride = true;
+        }
+
+        if (controller != null)
+            RunAutopilot(controller.MouseAimPos, out autoYaw, out autoPitch, out autoRoll);
+
+        yaw = autoYaw;
+        pitch = pitchOverride ? keyboardPitch : autoPitch;
+        roll = rollOverride ? keyboardRoll : autoRoll;
+    }
+
+    private void HandleAIControl()
+    {
+        Vector3 targetPosition = FindTargetPosition(); // Assume this method exists and provides smart targeting
+        RunAutopilot(targetPosition, out autoYaw, out autoPitch, out autoRoll);
+
+        pitch = autoPitch;
+        yaw = autoYaw;
+        roll = autoRoll;
+    }
+
+    private void RegenerateHealth()
+    {
+        if (currentHealth < maxHealth * 0.5f)
+        {
+            currentHealth += healthRegenRate * Time.deltaTime;
+            currentHealth = Mathf.Min(currentHealth, maxHealth);
+        }
+    }
+
+    private void ConsumeFuel()
+    {
+        if (fuel > 0)
+        {
+            fuel -= fuelConsumptionRate * Time.deltaTime;
+            fuel = Mathf.Clamp(fuel, 0f, 100f);
+        }
+        else
+        {
+            thrust = 0f;
+        }
     }
 
     private void CheckPowerUpStatus()
@@ -151,19 +196,6 @@ public class Plane : MonoBehaviour
         }
     }
 
-    private void ConsumeFuel()
-    {
-        if (fuel > 0)
-        {
-            fuel -= fuelConsumptionRate * Time.deltaTime;
-            fuel = Mathf.Clamp(fuel, 0f, 100f);
-        }
-        else
-        {
-            thrust = 0f;
-        }
-    }
-
     public float GetFuel()
     {
         return fuel;
@@ -199,8 +231,11 @@ public class Plane : MonoBehaviour
     {
         if (Time.time >= nextFireTime)
         {
-            Quaternion lookRotation = Quaternion.LookRotation(targetDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, turnSpeed * Time.deltaTime);
+            if (useSmartTargeting)
+            {
+                Quaternion lookRotation = Quaternion.LookRotation(targetDirection);
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, turnSpeed * Time.deltaTime);
+            }
             Shoot();
             nextFireTime = Time.time + 1f / fireRate;
         }
