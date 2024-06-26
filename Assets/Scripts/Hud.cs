@@ -12,7 +12,7 @@ public class Hud : MonoBehaviour
     [SerializeField] private RectTransform mousePos = null;
     [SerializeField] private TextMeshProUGUI speedText = null;
     [SerializeField] private TextMeshProUGUI altitudeText = null;
-
+    [SerializeField] private TextMeshProUGUI fuelText = null;
     private void Update()
     {
         if (flightController == null)
@@ -49,6 +49,12 @@ public class Hud : MonoBehaviour
         {
             float altitude = flightController.GetAltitude();
             altitudeText.text = $"Altitude: {altitude:F2} m";
+        }
+
+        if (fuelText != null)
+        {
+            float fuel = flightController.GetFuel();
+            fuelText.text = $"Fuel: {fuel:F2}%";
         }
     }
 

@@ -16,9 +16,27 @@ public class Plane : MonoBehaviour
     [Tooltip("Angle at which airplane banks fully into target.")] public float aggressiveTurnAngle = 10f;
 
     [Header("Input")]
-    [SerializeField] [Range(-1f, 1f)] private float pitch = 0f;
-    [SerializeField] [Range(-1f, 1f)] private float yaw = 0f;
-    [SerializeField] [Range(-1f, 1f)] private float roll = 0f;
+    [SerializeField][Range(-1f, 1f)] private float pitch = 0f;
+    [SerializeField][Range(-1f, 1f)] private float yaw = 0f;
+    [SerializeField][Range(-1f, 1f)] private float roll = 0f;
+
+    [Header("Fuel System")]
+    [Tooltip("Initial fuel amount in percentage")] public float fuel = 100f;
+    [Tooltip("Fuel consumption rate per second")] public float fuelConsumptionRate = 0.1f;
+
+    [Header("Weapons")]
+    [Tooltip("Projectile prefab to shoot")] public GameObject projectilePrefab;
+    [Tooltip("Particle system prefab for laser effect")] public GameObject laserParticlePrefab;
+    [Tooltip("Fire rate in shots per second")] public float fireRate = 1f;
+
+    private Rigidbody rb;
+    private bool rollOverride = false;
+    private bool pitchOverride = false;
+    private float nextFireTime = 0f;
+    private float autoYaw;
+    private float autoPitch;
+    private float autoRoll;
+
 
     public float Pitch
     {
@@ -35,14 +53,6 @@ public class Plane : MonoBehaviour
         get { return roll; }
         set { roll = Mathf.Clamp(value, -1f, 1f); }
     }
-
-    private Rigidbody rb;
-    private bool rollOverride = false;
-    private bool pitchOverride = false;
-    private float autoYaw;
-    private float autoPitch;
-    private float autoRoll;
-
 
     private void Awake()
     {
@@ -74,6 +84,48 @@ public class Plane : MonoBehaviour
         yaw = autoYaw;
         pitch = pitchOverride ? keyboardPitch : autoPitch;
         roll = rollOverride ? keyboardRoll : autoRoll;
+
+        ConsumeFuel();
+        HandleShooting();
+    }
+
+    private void ConsumeFuel()
+    {
+        if (fuel > 0)
+        {
+            fuel -= fuelConsumptionRate * Time.deltaTime;
+            fuel = Mathf.Clamp(fuel, 0f, 100f);
+        }
+        else
+        {
+            thrust = 0f;
+        }
+    }
+
+    public float GetFuel()
+    {
+        return fuel;
+    }
+
+    private void HandleShooting()
+    {
+        if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
+        {
+            Shoot();
+            nextFireTime = Time.time + 1f / fireRate;
+        }
+    }
+
+    private void Shoot()
+    {
+        if (projectilePrefab != null)
+        {
+            Instantiate(projectilePrefab, transform.position + transform.forward, transform.rotation);
+        }
+        if (laserParticlePrefab != null)
+        {
+            Instantiate(laserParticlePrefab, transform.position + transform.forward, transform.rotation);
+        }
     }
 
     private void RunAutopilot(Vector3 flyTarget, out float yaw, out float pitch, out float roll)
