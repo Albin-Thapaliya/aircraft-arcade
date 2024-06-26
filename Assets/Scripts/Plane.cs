@@ -25,6 +25,9 @@ public class Plane : MonoBehaviour
     [Tooltip("Initial fuel amount in percentage")] public float fuel = 100f;
     [Tooltip("Fuel consumption rate per second")] public float fuelConsumptionRate = 0.1f;
 
+    [Header("Health System")]
+    [Tooltip("Maximum health of the plane")] public float maxHealth = 100f;
+    private float currentHealth;
     [Header("Weapons")]
     [Tooltip("Projectile prefab to shoot")] public GameObject projectilePrefab;
     [Tooltip("Particle system prefab for laser effect")] public GameObject laserParticlePrefab;
@@ -61,6 +64,8 @@ public class Plane : MonoBehaviour
 
         if (!isAI && controller == null)
             Debug.LogError($"{name}: Plane - Missing reference to FlightController!");
+
+        currentHealth = maxHealth;
     }
 
     private void Update()
@@ -111,6 +116,11 @@ public class Plane : MonoBehaviour
         return fuel;
     }
 
+    public float GetHealth()
+    {
+        return currentHealth;
+    }
+
     private void HandleShooting()
     {
         if (Input.GetButton("Fire1") && Time.time >= nextFireTime)
@@ -130,6 +140,25 @@ public class Plane : MonoBehaviour
         {
             Instantiate(laserParticlePrefab, transform.position + transform.forward, transform.rotation);
         }
+    }
+
+    public void TakeDamage(float amount)
+    {
+        currentHealth -= amount;
+        if (currentHealth <= 0)
+        {
+            DestroyPlane();
+        }
+    }
+
+    private void DestroyPlane()
+    {
+        Destroy(gameObject);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        TakeDamage(10f);
     }
 
     private void RunAutopilot(Vector3 flyTarget, out float yaw, out float pitch, out float roll)
