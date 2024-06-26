@@ -1,14 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class FlightController : MonoBehaviour
 {
+    [Header("Prefabs")]
+    [SerializeField] [Tooltip("Hud to spawn to display and operate the crosshairs for the controller")]
+    private Hud hudPrefab = null;
+
     [Header("Components")]
-    [SerializeField] private Transform aircraft = null;
-    [SerializeField] private Transform mouseAim = null;
-    [SerializeField] private Transform cameraRig = null;
-    [SerializeField] private Transform cam = null;
+    [SerializeField] [Tooltip("Transform of the aircraft the rig follows and references")]
+    private Transform aircraft = null;
+    [SerializeField] [Tooltip("Transform of the object the mouse rotates to generate MouseAim position")]
+    private Transform mouseAim = null;
+    [SerializeField] [Tooltip("Transform of the object on the rig which the camera is attached to")]
+    private Transform cameraRig = null;
+    [SerializeField] [Tooltip("Transform of the camera itself")]
+    private Transform cam = null;
 
     [Header("Options")]
     [SerializeField] [Tooltip("Follow aircraft using fixed update loop")]
@@ -25,17 +31,57 @@ public class FlightController : MonoBehaviour
 
     public Vector3 BoresightPos
     {
-        get { return (aircraft.transform.forward * aimDistance) + aircraft.transform.position; }
+        get
+        {
+            return aircraft == null
+                ? transform.forward * aimDistance
+                : (aircraft.transform.forward * aimDistance) + aircraft.transform.position;
+        }
     }
 
     public Vector3 MouseAimPos
     {
-        get { return (mouseAim.transform.forward * aimDistance) + mouseAim.transform.position; }
+        get
+        {
+            return mouseAim == null
+                ? transform.forward * aimDistance
+                : (mouseAim.transform.forward * aimDistance) + mouseAim.transform.position;
+        }
+    }
+
+    private void Awake()
+    {
+        ValidateComponents();
+        
+        Cursor.lockState = CursorLockMode.Locked;
+
+        if (hudPrefab != null)
+        {
+            var hudGameObject = Instantiate(hudPrefab);
+            var hud = hudGameObject.GetComponent<Hud>();
+            hud.SetReferenceMouseFlight(this);
+        }
+        else
+            Debug.LogError($"{name}: MouseFlightController - No HUD prefab assigned!");
+
+        transform.parent = null;
+    }
+
+    private void ValidateComponents()
+    {
+        if (aircraft == null)
+            Debug.LogError($"{name}: MouseFlightController - No aircraft transform assigned!");
+        if (mouseAim == null)
+            Debug.LogError($"{name}: MouseFlightController - No mouse aim transform assigned!");
+        if (cameraRig == null)
+            Debug.LogError($"{name}: MouseFlightController - No camera rig transform assigned!");
+        if (cam == null)
+            Debug.LogError($"{name}: MouseFlightController - No camera transform assigned!");
     }
 
     private void Update()
     {
-        if (useFixed == false)
+        if (!useFixed)
             UpdateCameraPos();
 
         RotateRig();
@@ -43,12 +89,15 @@ public class FlightController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (useFixed == true)
+        if (useFixed)
             UpdateCameraPos();
     }
 
     private void RotateRig()
     {
+        if (mouseAim == null || cam == null || cameraRig == null)
+            return;
+
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = -Input.GetAxis("Mouse Y") * mouseSensitivity;
 
@@ -62,7 +111,8 @@ public class FlightController : MonoBehaviour
 
     private void UpdateCameraPos()
     {
-        transform.position = aircraft.position;
+        if (aircraft != null)
+            transform.position = aircraft.position;
     }
 
     private Quaternion Damp(Quaternion a, Quaternion b, float lambda, float dt)
