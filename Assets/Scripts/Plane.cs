@@ -49,7 +49,7 @@ public class Plane : MonoBehaviour
         rb = GetComponent<Rigidbody>();
 
         if (controller == null)
-            Debug.LogError($"{name}: Plane - Missing reference to MouseFlightController!");
+            Debug.LogError($"{name}: Plane - Missing reference to FlightController!");
     }
 
     private void Update()
@@ -71,7 +71,6 @@ public class Plane : MonoBehaviour
         if (controller != null)
             RunAutopilot(controller.MouseAimPos, out float autoYaw, out float autoPitch, out float autoRoll);
 
-        
         yaw = autoYaw;
         pitch = pitchOverride ? keyboardPitch : autoPitch;
         roll = rollOverride ? keyboardRoll : autoRoll;

@@ -3,31 +3,42 @@
 public class FlightController : MonoBehaviour
 {
     [Header("Prefabs")]
-    [SerializeField] [Tooltip("Hud to spawn to display and operate the crosshairs for the controller")]
+    [SerializeField]
+    [Tooltip("Hud to spawn to display and operate the crosshairs for the controller")]
     private Hud hudPrefab = null;
 
     [Header("Components")]
-    [SerializeField] [Tooltip("Transform of the aircraft the rig follows and references")]
+    [SerializeField]
+    [Tooltip("Transform of the aircraft the rig follows and references")]
     private Transform aircraft = null;
-    [SerializeField] [Tooltip("Transform of the object the mouse rotates to generate MouseAim position")]
+    [SerializeField]
+    [Tooltip("Transform of the object the mouse rotates to generate MouseAim position")]
     private Transform mouseAim = null;
-    [SerializeField] [Tooltip("Transform of the object on the rig which the camera is attached to")]
+    [SerializeField]
+    [Tooltip("Transform of the object on the rig which the camera is attached to")]
     private Transform cameraRig = null;
-    [SerializeField] [Tooltip("Transform of the camera itself")]
+    [SerializeField]
+    [Tooltip("Transform of the camera itself")]
     private Transform cam = null;
 
     [Header("Options")]
-    [SerializeField] [Tooltip("Follow aircraft using fixed update loop")]
+    [SerializeField]
+    [Tooltip("Follow aircraft using fixed update loop")]
     private bool useFixed = true;
 
-    [SerializeField] [Tooltip("How quickly the camera tracks the mouse aim point.")]
+    [SerializeField]
+    [Tooltip("How quickly the camera tracks the mouse aim point.")]
     private float camSmoothSpeed = 5f;
 
-    [SerializeField] [Tooltip("Mouse sensitivity for the mouse flight target")]
+    [SerializeField]
+    [Tooltip("Mouse sensitivity for the mouse flight target")]
     private float mouseSensitivity = 3f;
 
-    [SerializeField] [Tooltip("How far the boresight and mouse flight are from the aircraft")]
+    [SerializeField]
+    [Tooltip("How far the boresight and mouse flight are from the aircraft")]
     private float aimDistance = 500f;
+
+    private Rigidbody rb;
 
     public Vector3 BoresightPos
     {
@@ -52,17 +63,20 @@ public class FlightController : MonoBehaviour
     private void Awake()
     {
         ValidateComponents();
-        
         Cursor.lockState = CursorLockMode.Locked;
 
         if (hudPrefab != null)
         {
             var hudGameObject = Instantiate(hudPrefab);
             var hud = hudGameObject.GetComponent<Hud>();
-            hud.SetReferenceMouseFlight(this);
+            hud.SetReferenceFlightController(this);
         }
         else
-            Debug.LogError($"{name}: MouseFlightController - No HUD prefab assigned!");
+            Debug.LogError($"{name}: FlightController - No HUD prefab assigned!");
+
+        rb = GetComponent<Rigidbody>();
+        if (rb == null)
+            Debug.LogError($"{name}: FlightController - Missing Rigidbody component!");
 
         transform.parent = null;
     }
@@ -70,13 +84,13 @@ public class FlightController : MonoBehaviour
     private void ValidateComponents()
     {
         if (aircraft == null)
-            Debug.LogError($"{name}: MouseFlightController - No aircraft transform assigned!");
+            Debug.LogError($"{name}: FlightController - No aircraft transform assigned!");
         if (mouseAim == null)
-            Debug.LogError($"{name}: MouseFlightController - No mouse aim transform assigned!");
+            Debug.LogError($"{name}: FlightController - No mouse aim transform assigned!");
         if (cameraRig == null)
-            Debug.LogError($"{name}: MouseFlightController - No camera rig transform assigned!");
+            Debug.LogError($"{name}: FlightController - No camera rig transform assigned!");
         if (cam == null)
-            Debug.LogError($"{name}: MouseFlightController - No camera transform assigned!");
+            Debug.LogError($"{name}: FlightController - No camera transform assigned!");
     }
 
     private void Update()
@@ -118,5 +132,15 @@ public class FlightController : MonoBehaviour
     private Quaternion Damp(Quaternion a, Quaternion b, float lambda, float dt)
     {
         return Quaternion.Slerp(a, b, 1 - Mathf.Exp(-lambda * dt));
+    }
+
+    public float GetSpeed()
+    {
+        return rb.velocity.magnitude;
+    }
+
+    public float GetAltitude()
+    {
+        return transform.position.y;
     }
 }
