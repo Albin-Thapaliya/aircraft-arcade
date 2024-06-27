@@ -23,7 +23,16 @@ public class AIPlaneSpawner : MonoBehaviour
         for (int i = 0; i < numberOfPlanes; i++)
         {
             Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
-            Instantiate(aiPlanePrefab, spawnPoint.position, spawnPoint.rotation);
+            GameObject aiPlane = Instantiate(aiPlanePrefab, spawnPoint.position, spawnPoint.rotation);
+
+            // Randomize AI characteristics
+            Plane planeComponent = aiPlane.GetComponent<Plane>();
+            if (planeComponent != null)
+            {
+                planeComponent.speed = Random.Range(30f, 70f);
+                planeComponent.fireRate = Random.Range(0.5f, 2f);
+            }
+
             yield return new WaitForSeconds(spawnInterval);
         }
     }

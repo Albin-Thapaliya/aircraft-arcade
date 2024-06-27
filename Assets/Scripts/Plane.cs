@@ -52,6 +52,9 @@ public class Plane : MonoBehaviour
     private float powerUpEndTime;
     private float turnSpeed;
 
+    private string currentWeapon = "Standard";
+    private string powerUpStatus = "None";
+
     public float Pitch
     {
         get { return pitch; }
@@ -164,6 +167,7 @@ public class Plane : MonoBehaviour
     public void ActivatePowerUp(PowerUp.PowerUpType powerUpType, float duration)
     {
         powerUpEndTime = Time.time + duration;
+        powerUpStatus = powerUpType.ToString();
 
         switch (powerUpType)
         {
@@ -183,6 +187,7 @@ public class Plane : MonoBehaviour
     {
         thrust = originalSpeed;
         isInvincible = false;
+        powerUpStatus = "None";
     }
 
     public void TakeDamage(float amount)
@@ -204,6 +209,16 @@ public class Plane : MonoBehaviour
     public float GetHealth()
     {
         return currentHealth;
+    }
+
+    public string GetCurrentWeapon()
+    {
+        return currentWeapon;
+    }
+
+    public string GetPowerUpStatus()
+    {
+        return powerUpStatus;
     }
 
     private void HandleShooting()
@@ -243,6 +258,7 @@ public class Plane : MonoBehaviour
 
     private void DestroyPlane()
     {
+        // Add destruction effects here
         Destroy(gameObject);
     }
 

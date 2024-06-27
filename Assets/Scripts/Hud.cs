@@ -13,6 +13,8 @@ public class Hud : MonoBehaviour
     [SerializeField] private TextMeshProUGUI altitudeText = null;
     [SerializeField] private TextMeshProUGUI fuelText = null;
     [SerializeField] private TextMeshProUGUI healthText = null;
+    [SerializeField] private TextMeshProUGUI weaponText = null;
+    [SerializeField] private TextMeshProUGUI powerUpText = null;
 
     private void Update()
     {
@@ -62,6 +64,18 @@ public class Hud : MonoBehaviour
         {
             float health = flightController.GetHealth();
             healthText.text = $"Health: {health:F2}%";
+        }
+
+        if (weaponText != null)
+        {
+            string weaponType = flightController.GetCurrentWeapon();
+            weaponText.text = $"Weapon: {weaponType}";
+        }
+
+        if (powerUpText != null)
+        {
+            string powerUpStatus = flightController.GetPowerUpStatus();
+            powerUpText.text = $"PowerUp: {powerUpStatus}";
         }
     }
 
