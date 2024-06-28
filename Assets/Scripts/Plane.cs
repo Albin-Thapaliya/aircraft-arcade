@@ -1,79 +1,55 @@
 ﻿using UnityEngine;
-using UnityEngine.SceneManagement;
-using System.Collections;
-using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Plane : MonoBehaviour
 {
     [Header("Components")]
-    [SerializeField] private FlightController controller = null;
+    [SerializeField] private FlightController controller;
     public static Transform playerPlaneTransform;
-    [SerializeField] private bool isAI = false;
 
     [Header("Physics")]
-    [Tooltip("Force to push plane forwards with")] public float thrust = 100f;
-    [Tooltip("Pitch, Yaw, Roll")] public Vector3 turnTorque = new Vector3(90f, 25f, 45f);
-    [Tooltip("Multiplier for all forces")] public float forceMult = 1000f;
+    public float thrust = 100f;
+    public Vector3 turnTorque = new Vector3(90f, 25f, 45f);
+    public float forceMult = 1000f;
 
     [Header("Autopilot")]
-    [Tooltip("Sensitivity for autopilot flight.")] public float sensitivity = 5f;
-    [Tooltip("Angle at which airplane banks fully into target.")] public float aggressiveTurnAngle = 10f;
+    public float sensitivity = 5f;
+    public float aggressiveTurnAngle = 10f;
 
     [Header("Input")]
-    [SerializeField][Range(-1f, 1f)] private float pitch = 0f;
-    [SerializeField][Range(-1f, 1f)] private float yaw = 0f;
-    [SerializeField][Range(-1f, 1f)] private float roll = 0f;
+    [Range(-1f, 1f)] public float pitch = 0f;
+    [Range(-1f, 1f)] public float yaw = 0f;
+    [Range(-1f, 1f)] public float roll = 0f;
 
     [Header("Fuel System")]
-    [Tooltip("Initial fuel amount in percentage")] public float fuel = 100f;
-    [Tooltip("Fuel consumption rate per second")] public float fuelConsumptionRate = 0.1f;
+    public float fuel = 100f;
+    public float fuelConsumptionRate = 0.1f;
 
     [Header("Health System")]
-    [Tooltip("Maximum health of the plane")] public float maxHealth = 100f;
-    [Tooltip("Health regeneration rate per second when below 50% health")] public float healthRegenRate = 0.05f;
+    public float maxHealth = 100f;
+    public float healthRegenRate = 0.05f;
     private float currentHealth;
 
     [Header("Weapons")]
-    [Tooltip("Projectile prefab to shoot")] public GameObject projectilePrefab;
-    [Tooltip("Particle system prefab for laser effect")] public GameObject laserParticlePrefab;
-    [Tooltip("Fire rate in shots per second")] public float fireRate = 1f;
-    [Tooltip("Smart targeting system for AI")] public bool useSmartTargeting = true;
+    public GameObject projectilePrefab;
+    public GameObject laserParticlePrefab;
+    public float fireRate = 1f;
+    public bool useSmartTargeting = true;
 
     private Rigidbody rb;
-
-    public float baseSpeed = 100f;
-    private bool isTurbulent = false;
-
-    private bool rollOverride = false;
-    private bool pitchOverride = false;
-    private float nextFireTime = 0f;
-    private float autoYaw;
-    private float autoPitch;
-    private float autoRoll;
-
     private bool isInvincible = false;
     private float originalSpeed;
     private float powerUpEndTime;
+    private float nextFireTime = 0f;
     private float turnSpeed;
-
-    public float Pitch
-    {
-        get { return pitch; }
-        set { pitch = Mathf.Clamp(value, -1f, 1f); }
-    }
-
-    public float Yaw
-    {
-        get { return yaw; }
-        set { yaw = Mathf.Clamp(value, -1f, 1f); }
-    }
-
-    public float Roll
-    {
-        get { return roll; }
-        set { roll = Mathf.Clamp(value, -1f, 1f); }
-    }
+    private bool isAI;
+    private bool pitchOverride;
+    private bool rollOverride;
+    private float autoYaw;
+    private float autoPitch;
+    private float autoRoll;
+    private bool isTurbulent;
+    private Vector3 baseSpeed;
 
     private void Awake()
     {
@@ -88,32 +64,25 @@ public class Plane : MonoBehaviour
     private void Update()
     {
         if (!isAI)
-        {
             HandleManualControl();
-        }
         else
-        {
             HandleAIControl();
-        }
 
         ConsumeFuel();
         HandleShooting();
         CheckPowerUpStatus();
         RegenerateHealth();
         HandleFlight();
-
     }
 
     private void HandleManualControl()
     {
-        rollOverride = false;
-        pitchOverride = false;
-
         float keyboardRoll = Input.GetAxis("Horizontal");
+        float keyboardPitch = Input.GetAxis("Vertical");
+
         if (Mathf.Abs(keyboardRoll) > 0.25f)
             rollOverride = true;
 
-        float keyboardPitch = Input.GetAxis("Vertical");
         if (Mathf.Abs(keyboardPitch) > 0.25f)
         {
             pitchOverride = true;
@@ -130,18 +99,17 @@ public class Plane : MonoBehaviour
 
     private Vector3 FindTargetPosition()
     {
-        if (Plane.playerPlaneTransform != null)
-            return Plane.playerPlaneTransform.position;
-        else
-            return transform.position + transform.forward * 1000;
+        return playerPlaneTransform ? playerPlaneTransform.position : transform.position + transform.forward * 1000;
     }
+
     public void SetTurbulence(bool status)
     {
         isTurbulent = status;
     }
+
     private void HandleFlight()
     {
-        Vector3 force = transform.forward * baseSpeed;
+        Vector3 force = Vector3.zero;
         if (isTurbulent)
         {
             force += new Vector3(Random.Range(-5f, 5f), Random.Range(-5f, 5f), Random.Range(-5f, 5f));
@@ -184,15 +152,12 @@ public class Plane : MonoBehaviour
     private void CheckPowerUpStatus()
     {
         if (Time.time > powerUpEndTime)
-        {
             DeactivatePowerUp();
-        }
     }
 
     public void ActivatePowerUp(PowerUp.PowerUpType powerUpType, float duration)
     {
         powerUpEndTime = Time.time + duration;
-
         switch (powerUpType)
         {
             case PowerUp.PowerUpType.SpeedBoost:
@@ -216,22 +181,9 @@ public class Plane : MonoBehaviour
     public void TakeDamage(float amount)
     {
         if (isInvincible) return;
-
         currentHealth -= amount;
         if (currentHealth <= 0)
-        {
             DestroyPlane();
-        }
-    }
-
-    public float GetFuel()
-    {
-        return fuel;
-    }
-
-    public float GetHealth()
-    {
-        return currentHealth;
     }
 
     private void HandleShooting()
@@ -245,14 +197,10 @@ public class Plane : MonoBehaviour
 
     private void Shoot()
     {
-        if (projectilePrefab != null)
-        {
+        if (projectilePrefab)
             Instantiate(projectilePrefab, transform.position + transform.forward, transform.rotation);
-        }
-        if (laserParticlePrefab != null)
-        {
+        if (laserParticlePrefab)
             Instantiate(laserParticlePrefab, transform.position + transform.forward, transform.rotation);
-        }
     }
 
     public void HandleShooting(Vector3 targetDirection)
@@ -298,5 +246,15 @@ public class Plane : MonoBehaviour
     {
         rb.AddRelativeForce(Vector3.forward * thrust * forceMult, ForceMode.Force);
         rb.AddRelativeTorque(new Vector3(turnTorque.x * pitch, turnTorque.y * yaw, -turnTorque.z * roll) * forceMult, ForceMode.Force);
+    }
+
+    internal float GetFuel()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    internal float GetHealth()
+    {
+        throw new System.NotImplementedException();
     }
 }
