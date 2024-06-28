@@ -1,4 +1,4 @@
-﻿﻿using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ public class Plane : MonoBehaviour
 {
     [Header("Components")]
     [SerializeField] private FlightController controller = null;
+    public static Transform playerPlaneTransform;
     [SerializeField] private bool isAI = false;
 
     [Header("Physics")]
@@ -20,9 +21,9 @@ public class Plane : MonoBehaviour
     [Tooltip("Angle at which airplane banks fully into target.")] public float aggressiveTurnAngle = 10f;
 
     [Header("Input")]
-    [SerializeField] [Range(-1f, 1f)] private float pitch = 0f;
-    [SerializeField] [Range(-1f, 1f)] private float yaw = 0f;
-    [SerializeField] [Range(-1f, 1f)] private float roll = 0f;
+    [SerializeField][Range(-1f, 1f)] private float pitch = 0f;
+    [SerializeField][Range(-1f, 1f)] private float yaw = 0f;
+    [SerializeField][Range(-1f, 1f)] private float roll = 0f;
 
     [Header("Fuel System")]
     [Tooltip("Initial fuel amount in percentage")] public float fuel = 100f;
@@ -40,6 +41,10 @@ public class Plane : MonoBehaviour
     [Tooltip("Smart targeting system for AI")] public bool useSmartTargeting = true;
 
     private Rigidbody rb;
+
+    public float baseSpeed = 100f;
+    private bool isTurbulent = false;
+
     private bool rollOverride = false;
     private bool pitchOverride = false;
     private float nextFireTime = 0f;
@@ -95,6 +100,8 @@ public class Plane : MonoBehaviour
         HandleShooting();
         CheckPowerUpStatus();
         RegenerateHealth();
+        HandleFlight();
+
     }
 
     private void HandleManualControl()
@@ -119,6 +126,27 @@ public class Plane : MonoBehaviour
         yaw = autoYaw;
         pitch = pitchOverride ? keyboardPitch : autoPitch;
         roll = rollOverride ? keyboardRoll : autoRoll;
+    }
+
+    private Vector3 FindTargetPosition()
+    {
+        if (Plane.playerPlaneTransform != null)
+            return Plane.playerPlaneTransform.position;
+        else
+            return transform.position + transform.forward * 1000;
+    }
+    public void SetTurbulence(bool status)
+    {
+        isTurbulent = status;
+    }
+    private void HandleFlight()
+    {
+        Vector3 force = transform.forward * baseSpeed;
+        if (isTurbulent)
+        {
+            force += new Vector3(Random.Range(-5f, 5f), Random.Range(-5f, 5f), Random.Range(-5f, 5f));
+        }
+        rb.AddForce(force);
     }
 
     private void HandleAIControl()

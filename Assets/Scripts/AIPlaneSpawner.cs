@@ -18,7 +18,7 @@ public class AIPlaneSpawner : MonoBehaviour
         StartCoroutine(SpawnAIPlanes());
     }
 
-    private IEnumerator SpawnAIPlanes()
+    public IEnumerator SpawnAIPlanes()
     {
         for (int i = 0; i < numberOfPlanes; i++)
         {
