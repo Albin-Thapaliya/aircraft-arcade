@@ -10,8 +10,8 @@ public class AIPlaneSpawner : MonoBehaviour
     [SerializeField] private Transform[] spawnPoints;
 
     [Header("Spawn Parameters")]
-    [Tooltip("Number of AI planes to spawn")] public int numberOfPlanes = 5;
-    [Tooltip("Time interval between spawns")] public float spawnInterval = 5f;
+    public int numberOfPlanes = 5;
+    public float spawnInterval = 5f;
 
     private void Start()
     {
@@ -25,7 +25,6 @@ public class AIPlaneSpawner : MonoBehaviour
             Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
             GameObject aiPlane = Instantiate(aiPlanePrefab, spawnPoint.position, spawnPoint.rotation);
 
-            // Randomize AI characteristics
             Plane planeComponent = aiPlane.GetComponent<Plane>();
             if (planeComponent != null)
             {

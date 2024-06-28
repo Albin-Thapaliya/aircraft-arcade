@@ -21,23 +21,7 @@ public class Hud : MonoBehaviour
         if (flightController == null)
             return;
 
-        UpdateGraphics();
         UpdateFlightData();
-    }
-
-    private void UpdateGraphics()
-    {
-        if (boresight != null)
-        {
-            boresight.position = Camera.main.WorldToScreenPoint(flightController.BoresightPos);
-            boresight.gameObject.SetActive(boresight.position.z > 1f);
-        }
-
-        if (mousePos != null)
-        {
-            mousePos.position = Camera.main.WorldToScreenPoint(flightController.MouseAimPos);
-            mousePos.gameObject.SetActive(mousePos.position.z > 1f);
-        }
     }
 
     private void UpdateFlightData()
@@ -77,10 +61,5 @@ public class Hud : MonoBehaviour
             string powerUpStatus = flightController.GetPowerUpStatus();
             powerUpText.text = $"PowerUp: {powerUpStatus}";
         }
-    }
-
-    public void SetReferenceFlightController(FlightController controller)
-    {
-        flightController = controller;
     }
 }
