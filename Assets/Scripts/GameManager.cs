@@ -3,42 +3,49 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject playerPlanePrefab;
+    public GameObject[] planePrefabs;
     public Transform playerSpawnPoint;
-    public AIPlaneSpawner aiPlaneSpawner;
-    public GameObject[] powerUpPrefabs;
     public Transform[] powerUpSpawnPoints;
-    public float powerUpSpawnInterval = 30f;
+    public GameObject[] powerUpPrefabs;
+    public float powerUpSpawnInterval = 5f;
+    public AIPlaneSpawner aiPlaneSpawner;
 
     private GameObject playerPlane;
 
     void Start()
     {
-        SpawnPlayer();
+        SpawnPlayerPlane();
         StartCoroutine(aiPlaneSpawner.SpawnAIPlanes());
         InvokeRepeating("SpawnPowerUp", powerUpSpawnInterval, powerUpSpawnInterval);
     }
 
-    void SpawnPlayer()
+    private void SpawnPlayerPlane()
     {
         if (playerPlane != null)
         {
             Destroy(playerPlane);
         }
-
-        playerPlane = Instantiate(playerPlanePrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
+        int selectedPlaneIndex = PlayerPrefs.GetInt("SelectedPlaneIndex", 0);
+        if (planePrefabs != null && selectedPlaneIndex < planePrefabs.Length)
+        {
+            playerPlane = Instantiate(planePrefabs[selectedPlaneIndex], playerSpawnPoint.position, playerSpawnPoint.rotation);
+        }
+        else
+        {
+            Debug.LogError("Invalid plane selection or planePrefabs not properly assigned in the Inspector.");
+        }
     }
 
-    void GameOver()
-    {
-        Debug.Log("Game Over");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-
-    void SpawnPowerUp()
+    private void SpawnPowerUp()
     {
         Transform spawnPoint = powerUpSpawnPoints[Random.Range(0, powerUpSpawnPoints.Length)];
         GameObject powerUpPrefab = powerUpPrefabs[Random.Range(0, powerUpPrefabs.Length)];
         Instantiate(powerUpPrefab, spawnPoint.position, spawnPoint.rotation);
+    }
+
+    public void GameOver()
+    {
+        Debug.Log("Game Over");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

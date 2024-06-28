@@ -17,8 +17,8 @@ public class WeatherManager : MonoBehaviour {
             Destroy(currentEffectInstance.gameObject);
         }
 
-        if (currentWeather.weatherEffectPrefab != null) {
-            currentEffectInstance = Instantiate(currentWeather.weatherEffectPrefab, transform);
+        if (currentWeather.weatherEffect != null) {
+            currentEffectInstance = Instantiate(currentWeather.weatherEffect, transform);
         }
 
         foreach (var plane in FindObjectsOfType<Plane>()) {
