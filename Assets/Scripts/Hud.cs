@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿﻿using UnityEngine;
 using TMPro;
 
 public class Hud : MonoBehaviour
@@ -13,15 +13,29 @@ public class Hud : MonoBehaviour
     [SerializeField] private TextMeshProUGUI altitudeText = null;
     [SerializeField] private TextMeshProUGUI fuelText = null;
     [SerializeField] private TextMeshProUGUI healthText = null;
-    [SerializeField] private TextMeshProUGUI weaponText = null;
-    [SerializeField] private TextMeshProUGUI powerUpText = null;
 
     private void Update()
     {
         if (flightController == null)
             return;
 
+        UpdateGraphics();
         UpdateFlightData();
+    }
+
+    private void UpdateGraphics()
+    {
+        if (boresight != null)
+        {
+            boresight.position = Camera.main.WorldToScreenPoint(flightController.BoresightPos);
+            boresight.gameObject.SetActive(boresight.position.z > 1f);
+        }
+
+        if (mousePos != null)
+        {
+            mousePos.position = Camera.main.WorldToScreenPoint(flightController.MouseAimPos);
+            mousePos.gameObject.SetActive(mousePos.position.z > 1f);
+        }
     }
 
     private void UpdateFlightData()
@@ -49,17 +63,10 @@ public class Hud : MonoBehaviour
             float health = flightController.GetHealth();
             healthText.text = $"Health: {health:F2}%";
         }
+    }
 
-        if (weaponText != null)
-        {
-            string weaponType = flightController.GetCurrentWeapon();
-            weaponText.text = $"Weapon: {weaponType}";
-        }
-
-        if (powerUpText != null)
-        {
-            string powerUpStatus = flightController.GetPowerUpStatus();
-            powerUpText.text = $"PowerUp: {powerUpStatus}";
-        }
+    public void SetReferenceFlightController(FlightController controller)
+    {
+        flightController = controller;
     }
 }
