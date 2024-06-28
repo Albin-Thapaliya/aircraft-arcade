@@ -1,59 +1,86 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public GameObject playerPlanePrefab;
-    public Transform playerSpawnPoint;
-    public AIPlaneSpawner aiPlaneSpawner;
-    public GameObject[] powerUpPrefabs;
-    public Transform[] powerUpSpawnPoints;
-    public float powerUpSpawnInterval = 30f;
+    public static GameManager Instance { get; private set; }
 
-    private GameObject playerPlane;
-    private int score = 0;
-    private float difficultyMultiplier = 1.0f;
+    public enum GameState { Start, PlayerTurn, EnemyTurn, Won, Lost }
+    public GameState state;
+
+    [SerializeField] private List<UnitManager> playerUnits;
+    [SerializeField] private List<UnitManager> enemyUnits;
+
+    void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+    }
 
     void Start()
     {
-        SpawnPlayer();
-        InvokeRepeating("SpawnPowerUp", powerUpSpawnInterval, powerUpSpawnInterval);
-        InvokeRepeating("IncreaseDifficulty", 60f, 60f);
+        state = GameState.Start;
+        InitializeGame();
     }
 
-    void SpawnPlayer()
+    void InitializeGame()
     {
-        if (playerPlane != null)
+        TransitionToState(GameState.PlayerTurn);
+    }
+
+    void Update()
+    {
+        if (state == GameState.PlayerTurn)
+            PlayerTurn();
+
+        else if (state == GameState.EnemyTurn)
+            StartCoroutine(EnemyTurn());
+    }
+
+    void PlayerTurn()
+    {
+
+    }
+
+    IEnumerator EnemyTurn()
+    {
+        yield return new WaitForSeconds(2);
+        TransitionToState(GameState.PlayerTurn);
+    }
+
+    void CheckWinCondition()
+    {
+
+    }
+
+    void TransitionToState(GameState newState)
+    {
+        state = newState;
+        switch (newState)
         {
-            Destroy(playerPlane);
+            case GameState.PlayerTurn:
+                break;
+            case GameState.EnemyTurn:
+                break;
+            case GameState.Won:
+                break;
+            case GameState.Lost:
+                break;
         }
-
-        playerPlane = Instantiate(playerPlanePrefab, playerSpawnPoint.position, playerSpawnPoint.rotation);
     }
 
-    void GameOver()
+    public void EndTurn()
     {
-        Debug.Log("Game Over");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        if (state == GameState.PlayerTurn)
+            TransitionToState(GameState.EnemyTurn);
+        else if (state == GameState.EnemyTurn)
+            TransitionToState(GameState.PlayerTurn);
     }
+}
 
-    void SpawnPowerUp()
-    {
-        Transform spawnPoint = powerUpSpawnPoints[Random.Range(0, powerUpSpawnPoints.Length)];
-        GameObject powerUpPrefab = powerUpPrefabs[Random.Range(0, powerUpPrefabs.Length)];
-        Instantiate(powerUpPrefab, spawnPoint.position, spawnPoint.rotation);
-    }
-
-    public void AddScore(int points)
-    {
-        score += points;
-        Debug.Log($"Score: {score}");
-    }
-
-    private void IncreaseDifficulty()
-    {
-        difficultyMultiplier += 0.1f;
-        aiPlaneSpawner.spawnInterval /= difficultyMultiplier;
-        Debug.Log($"Difficulty increased: {difficultyMultiplier}");
-    }
+internal class UnitManager
+{
 }
