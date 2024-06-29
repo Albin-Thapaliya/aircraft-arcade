@@ -13,6 +13,27 @@ public class PowerUp : MonoBehaviour
         {
             plane.ActivatePowerUp(powerUpType, duration);
             Destroy(gameObject);
+
+            if (powerUpType == PowerUpType.SpeedBoost)
+                Debug.Log("Speed Boost Power Up Collected!");
+            else if (powerUpType == PowerUpType.Invincibility)
+                Debug.Log("Invincibility Power Up Collected!");
+            else if (powerUpType == PowerUpType.HealthRestore)
+                Debug.Log("Health Restore Power Up Collected!");
+
+            Debug.Log("Power Up Collected!");
         }
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, 1f);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, 1f);
     }
 }

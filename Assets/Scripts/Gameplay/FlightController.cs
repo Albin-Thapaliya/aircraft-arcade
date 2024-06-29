@@ -3,30 +3,39 @@
 public class FlightController : MonoBehaviour
 {
     [Header("Prefabs")]
-    [SerializeField] [Tooltip("Hud to spawn to display and operate the crosshairs for the controller")]
+    [SerializeField]
+    [Tooltip("Hud to spawn to display and operate the crosshairs for the controller")]
     private Hud hudPrefab = null;
 
     [Header("Components")]
-    [SerializeField] [Tooltip("Transform of the aircraft the rig follows and references")]
+    [SerializeField]
+    [Tooltip("Transform of the aircraft the rig follows and references")]
     private Transform aircraft = null;
-    [SerializeField] [Tooltip("Transform of the object the mouse rotates to generate MouseAim position")]
+    [SerializeField]
+    [Tooltip("Transform of the object the mouse rotates to generate MouseAim position")]
     private Transform mouseAim = null;
-    [SerializeField] [Tooltip("Transform of the object on the rig which the camera is attached to")]
+    [SerializeField]
+    [Tooltip("Transform of the object on the rig which the camera is attached to")]
     private Transform cameraRig = null;
-    [SerializeField] [Tooltip("Transform of the camera itself")]
+    [SerializeField]
+    [Tooltip("Transform of the camera itself")]
     private Transform cam = null;
 
     [Header("Options")]
-    [SerializeField] [Tooltip("Follow aircraft using fixed update loop")]
+    [SerializeField]
+    [Tooltip("Follow aircraft using fixed update loop")]
     private bool useFixed = true;
 
-    [SerializeField] [Tooltip("How quickly the camera tracks the mouse aim point.")]
+    [SerializeField]
+    [Tooltip("How quickly the camera tracks the mouse aim point.")]
     private float camSmoothSpeed = 5f;
 
-    [SerializeField] [Tooltip("Mouse sensitivity for the mouse flight target")]
+    [SerializeField]
+    [Tooltip("Mouse sensitivity for the mouse flight target")]
     private float mouseSensitivity = 3f;
 
-    [SerializeField] [Tooltip("How far the boresight and mouse flight are from the aircraft")]
+    [SerializeField]
+    [Tooltip("How far the boresight and mouse flight are from the aircraft")]
     private float aimDistance = 500f;
 
     private Rigidbody rb;
@@ -159,5 +168,65 @@ public class FlightController : MonoBehaviour
             return plane.GetHealth();
         }
         return 0f;
+    }
+
+    public void SetAircraft(Transform newAircraft)
+    {
+        aircraft = newAircraft;
+    }
+
+    public void SetMouseAim(Transform newMouseAim)
+    {
+        mouseAim = newMouseAim;
+    }
+
+    public void SetCameraRig(Transform newCameraRig)
+    {
+        cameraRig = newCameraRig;
+    }
+
+    public void SetCam(Transform newCam)
+    {
+        cam = newCam;
+    }
+
+    public void SetUseFixed(bool newUseFixed)
+    {
+        useFixed = newUseFixed;
+    }
+
+    public void SetCamSmoothSpeed(float newCamSmoothSpeed)
+    {
+        camSmoothSpeed = newCamSmoothSpeed;
+    }
+
+    public void SetMouseSensitivity(float newMouseSensitivity)
+    {
+        mouseSensitivity = newMouseSensitivity;
+    }
+
+    public void SetAimDistance(float newAimDistance)
+    {
+        aimDistance = newAimDistance;
+    }
+
+    public Transform GetAircraft()
+    {
+        return aircraft;
+    }
+
+    public Transform GetMouseAim()
+    {
+        return mouseAim;
+    }
+
+    public Transform GetCameraRig()
+    {
+        return cameraRig;
+    }
+
+    public Transform GetCam()
+    {
+        return cam;
     }
 }

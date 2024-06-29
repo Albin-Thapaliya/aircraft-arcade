@@ -60,6 +60,18 @@ public class DamageHandler : MonoBehaviourPun
     }
 }
 
+internal class LeaderboardManager
+{
+    internal void DisplayLeaderboard()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    internal void AddScore(PhotonPlayer killer, int v)
+    {
+        throw new System.NotImplementedException();
+    }
+}
 internal class Shooting
 {
 }

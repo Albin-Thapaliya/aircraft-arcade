@@ -69,4 +69,69 @@ public class Hud : MonoBehaviour
     {
         flightController = controller;
     }
+
+    public void ClearReferenceFlightController()
+    {
+        flightController = null;
+    }
+
+    public void SetBoresightActive(bool active)
+    {
+        if (boresight != null)
+            boresight.gameObject.SetActive(active);
+    }
+
+    public void SetMousePosActive(bool active)
+    {
+        if (mousePos != null)
+            mousePos.gameObject.SetActive(active);
+    }
+
+    public void SetSpeedTextActive(bool active)
+    {
+        if (speedText != null)
+            speedText.gameObject.SetActive(active);
+    }
+
+    public void SetAltitudeTextActive(bool active)
+    {
+        if (altitudeText != null)
+            altitudeText.gameObject.SetActive(active);
+    }
+
+    public void SetFuelTextActive(bool active)
+    {
+        if (fuelText != null)
+            fuelText.gameObject.SetActive(active);
+    }
+
+    public void SetHealthTextActive(bool active)
+    {
+        if (healthText != null)
+            healthText.gameObject.SetActive(active);
+    }
+
+    public void SetBoresightPosition(Vector3 position)
+    {
+        if (boresight != null)
+            boresight.position = position;
+    }
+
+    public void SetMousePosPosition(Vector3 position)
+    {
+        if (mousePos != null)
+            mousePos.position = position;
+    }
+
+    public void SetSpeedText(string text)
+    {
+        if (speedText != null)
+            speedText.text = text;
+    }
+
+    public void SetAltitudeText(string text)
+    {
+        if (altitudeText != null)
+            altitudeText.text = text;
+    }
 }
