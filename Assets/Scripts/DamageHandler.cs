@@ -20,7 +20,7 @@ public class DamageHandler : MonoBehaviourPun
 
     void Die()
     {
-        Debug.Log($"{PhotonNetwork.Nickname} died");
+        Debug.Log($"{PhotonNetwork.NickName} died");
         
         if (photonView.IsMine)
         {
@@ -29,7 +29,7 @@ public class DamageHandler : MonoBehaviourPun
 
         health = 100;
 
-        FindObjectOfType<RespawnManager>().Respawn(gameObject);
+        ((UnityEngine.Object)FindObjectOfType<RespawnManager>()).Respawn(gameObject);
         GetComponent<AudioSource>().Play();
         GetComponent<PlayerController>().enabled = false;
         GetComponent<Shooting>().enabled = false;
@@ -58,4 +58,20 @@ public class DamageHandler : MonoBehaviourPun
         GetComponent<AudioListener>().enabled = false;
         GetComponent<Light>().enabled = false;
     }
+}
+
+internal class Shooting
+{
+}
+
+internal class PlayerController
+{
+}
+
+internal class RespawnManager
+{
+}
+
+public class PhotonPlayer
+{
 }

@@ -37,3 +37,4 @@ public class LeaderboardManager : MonoBehaviourPun
             Debug.Log($"Player {entry.Key} has {entry.Value} points.");
         }
     }
+}
