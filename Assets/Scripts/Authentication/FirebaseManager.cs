@@ -161,4 +161,66 @@ public void UpdateUserProfile(string newName)
         auth.SignOut();
         Debug.Log("User signed out.");
     }
+
+    public void DeleteUser()
+    {
+        FirebaseUser user = auth.CurrentUser;
+        if (user != null)
+        {
+            user.DeleteAsync().ContinueWith(task =>
+            {
+                if (task.IsCanceled)
+                {
+                    Debug.LogError("DeleteAsync was canceled.");
+                    return;
+                }
+                if (task.IsFaulted)
+                {
+                    Debug.LogError("DeleteAsync encountered an error: " + task.Exception);
+                    return;
+                }
+                Debug.Log("User deleted successfully.");
+            });
+        }
+    }
+
+    public void LinkWithGoogle()
+    {
+        GoogleSignIn.Configuration = new GoogleSignInConfiguration
+        {
+            RequestIdToken = true,
+            WebClientId = ""
+        };
+
+        GoogleSignIn.DefaultInstance.SignIn().ContinueWith(task =>
+        {
+            if (task.IsCanceled)
+            {
+                Debug.LogError("SignInWithGoogle was canceled.");
+                return;
+            }
+            if (task.IsFaulted)
+            {
+                Debug.LogError("SignInWithGoogle encountered an error: " + task.Exception);
+                return;
+            }
+
+            Credential credential = GoogleAuthProvider.GetCredential(((Task<GoogleSignInUser>)task).Result.IdToken, null);
+            auth.CurrentUser.LinkWithCredentialAsync(credential).ContinueWith(authTask =>
+            {
+                if (authTask.IsCanceled)
+                {
+                    Debug.LogError("LinkWithCredentialAsync was canceled.");
+                    return;
+                }
+                if (authTask.IsFaulted)
+                {
+                    Debug.LogError("LinkWithCredentialAsync encountered an error: " + authTask.Exception);
+                    return;
+                }
+
+                FirebaseUser newUser = authTask.Result;
+                Debug.LogFormat("User linked with Google successfully: {0} ({1})", newUser.DisplayName, newUser.UserId);
+            });
+        });
 }

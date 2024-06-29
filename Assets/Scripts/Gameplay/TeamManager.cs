@@ -25,5 +25,10 @@ public class TeamManager : MonoBehaviourPunCallbacks
         }
 
         Debug.Log($"Player {playerID} joined {teamName}");
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            DisplayTeams();
+        }
     }
 }
