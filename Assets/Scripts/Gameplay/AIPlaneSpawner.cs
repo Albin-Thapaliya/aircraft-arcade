@@ -31,4 +31,31 @@ public class AIPlaneSpawner : MonoBehaviour
             yield return new WaitForSeconds(spawnInterval);
         }
     }
+
+    public void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        foreach (Transform spawnPoint in spawnPoints)
+        {
+            Gizmos.DrawWireSphere(spawnPoint.position, 1f);
+        }
+    }
+
+    public void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        foreach (Transform spawnPoint in spawnPoints)
+        {
+            Gizmos.DrawWireSphere(spawnPoint.position, 1f);
+        }
+    }
+
+    public void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        foreach (Transform spawnPoint in spawnPoints)
+        {
+            Gizmos.DrawWireSphere(spawnPoint.position, 1f);
+        }
+    }
 }

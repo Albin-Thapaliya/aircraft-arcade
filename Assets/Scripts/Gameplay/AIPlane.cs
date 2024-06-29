@@ -59,4 +59,69 @@ public class AIPlane : MonoBehaviourPun
             direction += hit.normal * avoidanceRadius;
         }
     }
+
+    public void SetWaypoints(Transform[] newWaypoints)
+    {
+        waypoints = newWaypoints;
+    }
+
+    public void SetTarget(Transform newTarget)
+    {
+        target = newTarget;
+    }
+
+    public void SetSpeed(float newSpeed)
+    {
+        speed = newSpeed;
+    }
+
+    public void SetTurnSpeed(float newTurnSpeed)
+    {
+        turnSpeed = newTurnSpeed;
+    }
+
+    public void SetAvoidanceRadius(float newAvoidanceRadius)
+    {
+        avoidanceRadius = newAvoidanceRadius;
+    }
+
+    public void SetCurrentWaypointIndex(int newIndex)
+    {
+        currentWaypointIndex = newIndex;
+    }
+
+    public Transform[] GetWaypoints()
+    {
+        return waypoints;
+    }
+
+    public Transform GetTarget()
+    {
+        return target;
+    }
+
+    public float GetSpeed()
+    {
+        return speed;
+    }
+
+    public float GetTurnSpeed()
+    {
+        return turnSpeed;
+    }
+
+    public float GetAvoidanceRadius()
+    {
+        return avoidanceRadius;
+    }
+
+    public int GetCurrentWaypointIndex()
+    {
+        return currentWaypointIndex;
+    }
+
+    public void SetPlane(Plane newPlane)
+    {
+        plane = newPlane;
+    }
 }
