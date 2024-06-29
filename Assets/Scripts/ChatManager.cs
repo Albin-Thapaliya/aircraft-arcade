@@ -2,6 +2,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class ChatManager : MonoBehaviourPun
 {
@@ -15,7 +16,7 @@ public class ChatManager : MonoBehaviourPun
         string message = chatInput.text;
         if (!string.IsNullOrEmpty(message))
         {
-            photonView.RPC("ReceiveMessage", RpcTarget.All, PhotonNetwork.Nickname + ": " + message);
+            photonView.RPC("ReceiveMessage", RpcTarget.All, PhotonNetwork.NickName + ": " + message);
             chatInput.text = "";
             chatInput.ActivateInputField();
         }
