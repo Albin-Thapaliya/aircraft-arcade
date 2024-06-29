@@ -1,5 +1,6 @@
-using System.Collections;
 using UnityEngine;
+using Photon.Pun;
+using System.Collections;
 
 public class AIPlaneSpawner : MonoBehaviour
 {
@@ -15,7 +16,10 @@ public class AIPlaneSpawner : MonoBehaviour
 
     private void Start()
     {
-        StartCoroutine(SpawnAIPlanes());
+        if (PhotonNetwork.IsMasterClient)
+        {
+            StartCoroutine(SpawnAIPlanes());
+        }
     }
 
     public IEnumerator SpawnAIPlanes()
@@ -23,7 +27,7 @@ public class AIPlaneSpawner : MonoBehaviour
         for (int i = 0; i < numberOfPlanes; i++)
         {
             Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
-            Instantiate(aiPlanePrefab, spawnPoint.position, spawnPoint.rotation);
+            PhotonNetwork.Instantiate(aiPlanePrefab.name, spawnPoint.position, spawnPoint.rotation);
             yield return new WaitForSeconds(spawnInterval);
         }
     }

@@ -1,6 +1,7 @@
 using UnityEngine;
+using Photon.Pun;
 
-public class AIPlane : MonoBehaviour
+public class AIPlane : MonoBehaviourPun
 {
     [Header("Waypoints")]
     [SerializeField] private Transform[] waypoints;
@@ -23,6 +24,8 @@ public class AIPlane : MonoBehaviour
 
     private void Update()
     {
+        if (!photonView.IsMine) return;
+
         if (waypoints.Length == 0) return;
 
         Transform targetWaypoint = waypoints[currentWaypointIndex];
